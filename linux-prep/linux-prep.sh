@@ -1,4 +1,7 @@
 #!/bin/bash
+cd ~/Desktop || return
+mkdir linux-prep || return
+cd linux-prep || return
 
 git="git"
 wget="wget"
@@ -6,7 +9,13 @@ kat="katoolin"
 
 echo "You are about to install The Following Programs...."
 
-print "$git '\n' $kat $wget Arduino\nMeta Trader-5\nVisual Studio Code\nSnap Store"
+echo "$git
+$kat
+$wget
+Arduino
+Meta Trader-5
+Visual Studio Code
+Snap Store"
 
 #ESSENTIALS
 # WGET
@@ -15,13 +24,17 @@ sudo apt install $wget
 sudo apt install $git
 
 ####### Installing KATOOLIN
-sudo apt-get install $kat
-
-sudo apt update
-
-cd ~/Desktop || return
-mkdir Essentials-Dump || return
-cd Essentials-Dump || return
+echo "KATOOLING - (A KALI LINUX TOOLS INSTALL)"
+# shellcheck disable=SC2162
+read -p "Would You Like To Install $kat? [y/n]" user_input
+if [ "$user_input" == "y" ] || [ "$user_input" == "Y" ]; then
+	git clone https://github.com/LionSec/katoolin.git
+	sudo cp katoolin/katoolin.py /usr/bin/katoolin
+	sudo chmod +x /usr/bin/katoolin
+	sudo katoolin
+else
+	echo "skipping Katoolin Install"
+fi
 
 install_update_program() {
 	local name_of_program=$1
@@ -45,6 +58,7 @@ install_update_program() {
 		if [ "$current_version" != "$latest_release" ]; then
 			echo "$name_of_program $current_version has an update $latest_release."
 			# request update
+			# shellcheck disable=SC2162
 			read -p "Would You like to update to $latest_release? [y/n]: " user_choice
 			if [ "$user_choice" == "y" ] || [ "$user_choice" == "Y" ]; then
 				echo "Updating $name_of_program..."
@@ -57,6 +71,7 @@ install_update_program() {
 		fi
 	# if program does not exist, install it
 	else
+		# shellcheck disable=SC2162
 		read -p "Would You Like to install $name_of_program? [y/n]" user_choose
 		if [ "$user_choose" == "y" ] || [ "$user_choose" == "Y" ]; then
 			echo "Installing $name_of_program..."
