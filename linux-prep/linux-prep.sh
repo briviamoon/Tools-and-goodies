@@ -25,6 +25,7 @@ echo "
  #5 |- Meta Trader-5
  #6 |- Visual Studio Code
  #7 |- Snap Store
+ #8 |- Chrome
  
  "
 
