@@ -43,7 +43,7 @@ declare -A programs
 programs[1]="Katoolin:installKatoolin"
 programs[2]="Snap-store:installSnapStore"
 programs[3]="chrome:installChrome"
-programs[4]="Arduino:installProgram 'Arduino'"
+programs[4]="Arduino:installProgram "arduino""
 programs[5]="MetaTrader5:installMT"
 programs[6]="Visual Studio Code:installVsCode"
 
@@ -150,6 +150,70 @@ installChrome()
 		fi
 }
 
+#		Install Any Other Program		#
+# ##################################### #
+installProgram()
+{
+	local name_of_program=$1
+	local config_file
+	local program_url
+
+	if [ "$(command -v $name_of_program)" ]; then
+		current_version=$($name_of_program -- version)
+		echo "$name_of_program Already Installed (Version $current_version)..."
+
+		# This Attempts to Locate the Url To the source of the app from it configuration file.
+		# However I cannot seem To correctly Telll where it.
+		# It would be great if I could Do It dynamicaly across the whole system and save on time.
+		config_file=$(sudo find ~/.config/ -name "$name_of_program")
+		program_url=$(grep "^$name_of_program=" "$config_file" | cut -d'=' -f2)
+
+		if [ -z "$program_url" ]; then
+			echo " ## Error Config file not found for $name_of_program"
+			return
+		fi
+
+		# check For updates
+		latest_release=$(curl -s "$program_url")
+		if [ "$current_version" != "$latest_release" ]; then
+			echo "$name_of_program  $current_release has an update ($latest_release) avilable ..."
+			#request User To Update
+			read -p " Do You Want To proceed eith $latest_release update? [Y/n]: " user_choice
+			if [ "$user_choice" == "y" ] || [ "$user_choice" == "Y" ]; then
+				echo " Updating to $latest_release ..."
+				sudo apt update "$name_of_program"
+			else
+				echo " Skipping $name_of_program update ..."
+			fi
+		else
+			echo " $name_of_program is Up to date"
+		fi
+
+		# Program Does not Exist SO install
+	else
+		echo "
+			#### Installing $name_of_program ####"
+			read -p " Would You Like To proceed with $name_of_program install? [y/n]: " user_choice
+			if [ "$user_choice" == "y" ] || [ "$user_choice" == "Y" ]; then
+				sudo apt update
+				sudo apt-get install "$name_of_program"
+				if [ "$(command -v $name_of_program )" ]; then
+					install_version=$($name_of_program --version)
+					$apps_installed++
+					echo " $name_of_program version $install_version Installed Successfully ..."
+				else
+					echo " ## Error Installing $name_of_program, Try Manualy installing it ..."
+				fi
+			else
+				echo " Skipping $name_of_program Install ..."
+			fi
+	fi
+}
+
+
 
 # start The Script
 AskToInstall
+
+echo " ## $apps_installed Installed. Find The Downloadable packages in the linux-prep-dump Folder in your dektop"
+
