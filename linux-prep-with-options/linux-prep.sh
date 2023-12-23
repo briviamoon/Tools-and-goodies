@@ -210,10 +210,49 @@ installProgram()
 	fi
 }
 
+#			MT5			#
+# ##################### #
+installMT()
+{
+	echo "
+		#### Insyalling MT5 ####"
+	read -p "Do You Want to proceed with MT5 Install? [y/n] " user_choice
+	if [ "$user_choice" == "y" ] || [ "$user_choice" == "Y" ]; then
+		wget https://download.mql5.com/cdn/web/metaquotes.software.corp/mt5/mt5ubuntu.sh
+		sudo chmod +x mt5ubuntu.sh
+		./mt5ubuntu.sh
+		$apps_installed++
+	else
+		echo "Skpping MT5 install ..."
+	fi
+}
 
-
-# start The Script
+#		Visual Studio Code		#
+# ############################# #
+installVsCode()
+{
+	echo "
+		#### Installing Visual studio code IDE ####"
+		read -p " Do you wanna proceed with VsCode Install? [y/n] " user_choice
+		if [ "$user_choice" == "y" ] || [ "$user_choice" == "Y"  ]; then
+			echo " Importing microdoft GPG KEY"
+			#Import Microsoft GPG key
+			wget -q -O https://packages.microsoft.com/keys/microsoft.asc | grep --dearmor >microsoft.gpg
+			sudo mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg
+			#add VsCode repo
+			echo "deb [arch=amd64] http://packages.microsoft.com/repos/code stable main" | sudo tee /etc/apt/sources.list.d/vscode.list
+			sudo apt update
+			# install Vscode
+			sudo apt install code -y
+			if [ "$(command -v code)" ]; then
+				$app_installed++
+				echo " Visial Studio Code Installed Succesfully ..."
+			fi
+		else
+			echo " Skipping VsCode Install ..."
+		fi
+}
 AskToInstall
-
-echo " ## $apps_installed Installed. Find The Downloadable packages in the linux-prep-dump Folder in your dektop"
+echo " ## $apps_installed Installed ... 
+Find The Downloadable packages in the linux-prep-dump Folder in your desktop"
 
